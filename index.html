@@ -1,0 +1,409 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>ArmineX — Mini Dashboard</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2280%22>🪙</text></svg>">
+<style>
+  :root{
+    --bg:#05060a;
+    --card:#071026;
+    --muted:#9aa6bd;
+    --neon:#08a6ff;
+    --accent:#00e0ff;
+    --glass: rgba(255,255,255,0.03);
+    --success:#3be38a;
+    font-family: Inter, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+    -webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale;
+  }
+  *{box-sizing:border-box}
+  html,body{height:100%;margin:0;background:linear-gradient(180deg,var(--bg),#02030a);color:#e6eef9}
+  .wrap{max-width:980px;margin:0 auto;padding:16px}
+  header{display:flex;gap:12px;align-items:center;margin-bottom:12px}
+  .logo{width:56px;height:56px;border-radius:12px;background:linear-gradient(135deg,#071226,#002336);display:flex;align-items:center;justify-content:center;font-weight:800;font-size:22px;color:var(--neon);box-shadow:0 6px 24px rgba(0,166,255,0.06)}
+  h1{font-size:18px;margin:0}
+  p.sub{margin:0;color:var(--muted);font-size:13px}
+  .grid{display:grid;grid-template-columns:1fr;gap:12px;margin-top:12px}
+  .card{background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));border-radius:12px;padding:12px;box-shadow:0 8px 30px rgba(2,8,23,0.6);border:1px solid rgba(255,255,255,0.03)}
+  .wallet{display:flex;justify-content:space-between;align-items:center;gap:12px}
+  .bal{font-size:20px;font-weight:800;color:var(--accent)}
+  .meta{color:var(--muted);font-size:13px}
+  .buttons{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+  .btn{background:linear-gradient(90deg,var(--neon),var(--accent));color:#001423;padding:10px 12px;border-radius:10px;border:none;font-weight:800;cursor:pointer;box-shadow:0 8px 30px rgba(2,166,255,0.12)}
+  .btn.ghost{background:transparent;color:var(--neon);border:1px solid rgba(8,166,255,0.12)}
+  .row{display:flex;gap:10px;align-items:center;justify-content:space-between}
+  .pack-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-top:10px}
+  .pack{padding:12px;border-radius:12px;background:linear-gradient(180deg, rgba(255,255,255,0.01), rgba(255,255,255,0.005));border:1px solid rgba(0,166,255,0.04)}
+  .pack h3{margin:0;font-size:16px;color:var(--neon)}
+  .pack .price{font-weight:800;font-size:16px;margin-top:6px}
+  .small{font-size:12px;color:var(--muted)}
+  .center{display:flex;align-items:center;justify-content:center;flex-direction:column;gap:8px}
+  footer{margin-top:18px;text-align:center;color:var(--muted);font-size:12px}
+  .topline{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+  .ref{background:linear-gradient(90deg,#071426,#05283a);padding:10px;border-radius:10px;border:1px solid rgba(0,166,255,0.06)}
+  .copy{background:transparent;border:1px solid rgba(255,255,255,0.04);padding:8px;border-radius:8px;color:var(--neon);cursor:pointer}
+  .hide{display:none}
+  /* Modal */
+  .modal{position:fixed;inset:0;background:rgba(1,2,6,0.6);display:flex;align-items:center;justify-content:center;padding:12px}
+  .modal .box{width:100%;max-width:520px;background:var(--card);padding:14px;border-radius:12px}
+  input[type="text"], input[type="tel"], input[type="email"], input[type="number"]{width:100%;padding:10px;border-radius:8px;border:1px solid rgba(255,255,255,0.04);background:transparent;color:inherit;margin-top:8px}
+  .muted{color:var(--muted);font-size:12px}
+  .rowwrap{display:flex;gap:8px}
+  @media (min-width:720px){ .grid{grid-template-columns:1fr 360px} }
+</style>
+</head>
+<body>
+<div class="wrap" id="app">
+  <header>
+    <div class="logo">AX</div>
+    <div>
+      <h1 id="greet">ArmineX</h1>
+      <p class="sub" id="sub">Open inside Telegram for secure login</p>
+    </div>
+    <div style="margin-left:auto">
+      <button class="btn ghost" id="loginBtn">Login / Signup</button>
+    </div>
+  </header>
+
+  <div class="grid">
+    <div>
+      <div class="card wallet">
+        <div>
+          <div class="meta">Wallet Balance</div>
+          <div class="bal" id="balance">— USDT</div>
+          <div class="meta small" id="activePkg">Active package: —</div>
+        </div>
+        <div style="text-align:right">
+          <div class="meta small">Daily Profit</div>
+          <div style="font-weight:800;color:var(--neon)" id="dailyProfit">—</div>
+          <div style="margin-top:10px" class="buttons">
+            <button class="btn" id="depositBtn">Deposit USDT</button>
+            <button class="btn ghost" id="withdrawBtn">Withdraw</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="card" style="margin-top:12px;">
+        <div class="row">
+          <div>
+            <div style="font-weight:900">Start Passive Income</div>
+            <div class="small">Activate packages & grow your daily earnings</div>
+          </div>
+          <div>
+            <div class="small">Daily Task</div>
+            <button class="btn ghost" id="taskBtn">Reserve</button>
+          </div>
+        </div>
+
+        <div class="pack-grid">
+          <div class="pack">
+            <h3>Seed</h3>
+            <div class="price">$10</div>
+            <div class="small">Daily 0.1% • Minimal start</div>
+            <div style="margin-top:8px"><button class="btn" onclick="activate('seed',10,0.1)">Activate</button></div>
+          </div>
+          <div class="pack">
+            <h3>Boost</h3>
+            <div class="price">$30</div>
+            <div class="small">Daily 0.4% • Faster growth</div>
+            <div style="margin-top:8px"><button class="btn" onclick="activate('boost',30,0.4)">Activate</button></div>
+          </div>
+          <div class="pack">
+            <h3>Pro</h3>
+            <div class="price">$60</div>
+            <div class="small">Daily 0.8% • Power user</div>
+            <div style="margin-top:8px"><button class="btn" onclick="activate('pro',60,0.8)">Activate</button></div>
+          </div>
+          <div class="pack">
+            <h3>Diamond</h3>
+            <div class="price">$100</div>
+            <div class="small">Daily 1.5% • Elite</div>
+            <div style="margin-top:8px"><button class="btn" onclick="activate('diamond',100,1.5)">Activate</button></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card" style="margin-top:12px">
+        <div class="topline" style="justify-content:space-between;align-items:center">
+          <div>
+            <div style="font-weight:900">Referral</div>
+            <div class="small">Invite friends & earn multi-level commissions</div>
+          </div>
+          <div class="ref">
+            <div class="small">Your Referral</div>
+            <div id="refCode" style="font-weight:800;color:var(--neon)">—</div>
+            <div style="margin-top:8px">
+              <button class="copy" id="copyBtn">Copy Link</button>
+            </div>
+          </div>
+        </div>
+        <div style="margin-top:12px" id="levelsSummary" class="small">Levels: 9 • Min withdrawal: $30 weekly</div>
+      </div>
+
+    </div>
+
+    <div>
+      <div class="card">
+        <div style="display:flex;justify-content:space-between;align-items:center">
+          <div>
+            <div style="font-weight:900">Quick Stats</div>
+            <div class="small">Users • Referrals • Pending</div>
+          </div>
+          <div style="text-align:right">
+            <div style="font-weight:900" id="totalUsers">—</div>
+            <div class="small">Users</div>
+          </div>
+        </div>
+
+        <div style="margin-top:12px">
+          <div style="display:flex;gap:8px;align-items:center;justify-content:space-between">
+            <div>
+              <div class="small">Pending Withdrawals</div>
+              <div id="pendingWithdrawals" style="font-weight:700;color:var(--neon)">—</div>
+            </div>
+            <div>
+              <div class="small">Total Earned</div>
+              <div id="totalEarned" style="font-weight:700;color:var(--neon)">—</div>
+            </div>
+          </div>
+        </div>
+
+        <div style="margin-top:12px" class="buttons">
+          <button class="btn ghost" id="teamBtn">My Team</button>
+          <button class="btn ghost" id="historyBtn">History</button>
+        </div>
+      </div>
+
+      <div class="card" style="margin-top:12px">
+        <div style="font-weight:900">Support</div>
+        <div class="small">Need help? Contact support via Telegram</div>
+        <div style="margin-top:8px">
+          <button class="btn" id="supportBtn">Open Support</button>
+        </div>
+      </div>
+
+      <div class="card" style="margin-top:12px">
+        <div style="font-weight:700">About ArmineX</div>
+        <div class="small" style="margin-top:6px">Web3 passive income project • 9-level referral system • Packages from $10–$100</div>
+      </div>
+    </div>
+  </div>
+
+  <footer>ArmineX • Web3 Earning Bot • 9-level referral • Min Withdraw $30 weekly</footer>
+</div>
+
+<!-- LOGIN / OTP MODAL -->
+<div id="loginModal" class="modal hide" aria-hidden="true">
+  <div class="box">
+    <div style="display:flex;justify-content:space-between;align-items:center">
+      <div style="font-weight:900">Login / Signup</div>
+      <button class="btn ghost" onclick="closeLogin()">Close</button>
+    </div>
+    <div style="margin-top:8px" class="small muted">Choose phone OTP or email</div>
+
+    <div id="loginStep1" style="margin-top:12px">
+      <label class="small">Phone (BEP20 wallets / USDT onchain will be collected later)</label>
+      <input id="phoneInput" type="tel" placeholder="+91 98765 43210" />
+      <div style="margin-top:8px" class="rowwrap">
+        <button class="btn" onclick="sendOtp()">Send OTP</button>
+        <button class="btn ghost" onclick="showEmail()">Use Email</button>
+      </div>
+      <div style="margin-top:8px" class="muted">This demo uses a fake OTP for UI. Connect your SMS provider later.</div>
+    </div>
+
+    <div id="loginStepOtp" class="hide" style="margin-top:12px">
+      <label class="small">Enter OTP</label>
+      <input id="otpInput" type="number" placeholder="1234" />
+      <div style="margin-top:8px" class="rowwrap">
+        <button class="btn" onclick="verifyOtp()">Verify</button>
+        <button class="btn ghost" onclick="backToPhone()">Back</button>
+      </div>
+    </div>
+
+    <div id="loginStepEmail" class="hide" style="margin-top:12px">
+      <label class="small">Email</label>
+      <input id="emailInput" type="email" placeholder="you@example.com" />
+      <div style="margin-top:8px" class="rowwrap">
+        <button class="btn" onclick="sendEmailLogin()">Continue</button>
+        <button class="btn ghost" onclick="backToPhone()">Back</button>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- SIMPLE MODAL FOR MESSAGES -->
+<div id="simpleModal" class="modal hide" aria-hidden="true">
+  <div class="box center" style="max-width:420px">
+    <div id="simpleTitle" style="font-weight:900">Message</div>
+    <div id="simpleBody" class="small muted">...</div>
+    <div style="margin-top:12px"><button class="btn" onclick="closeSimple()">OK</button></div>
+  </div>
+</div>
+
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
+<script>
+/*
+  IMPORTANT:
+  - Replace API_BASE with your backend APIs (Supabase Edge Function URLs or Replit endpoints)
+  - Update BOT_USERNAME to your bot username for referral link format
+  - This frontend provides UI and JS hooks. Connect APIs for real logic (login OTP, payments, activate, withdraw).
+*/
+const API_BASE = "https://YOUR_BACKEND_BASE_URL"; // <-- REPLACE
+const BOT_USERNAME = "ArmineX_bot";               // <-- REPLACE if needed
+const WEBAPP = window.Telegram?.WebApp;
+let USER = null;
+
+// UI helpers
+function show(el){ el.classList.remove("hide"); el.setAttribute("aria-hidden","false"); }
+function hide(el){ el.classList.add("hide"); el.setAttribute("aria-hidden","true"); }
+function openLogin(){ show(document.getElementById("loginModal")); }
+function closeLogin(){ hide(document.getElementById("loginModal")); }
+function showSimple(title,body){ document.getElementById("simpleTitle").innerText=title; document.getElementById("simpleBody").innerText=body; show(document.getElementById("simpleModal")); }
+function closeSimple(){ hide(document.getElementById("simpleModal")); }
+
+// Init UI inside Telegram
+function onLoad(){
+  if(WEBAPP){
+    WEBAPP.expand();
+    try{ USER = WEBAPP.initDataUnsafe?.user || null; }catch(e){ USER=null; }
+    const name = USER?.first_name || "Member";
+    document.getElementById("greet").innerText = `Hey ${name}, Welcome to ArmineX`;
+    document.getElementById("sub").innerText = "Start passive income • Activate a package • Invite friends";
+    const ref = USER ? `${USER.id}` : "guest";
+    document.getElementById("refCode").innerText = `armineX_${ref}`;
+    fetchDashboard();
+  } else {
+    document.getElementById("greet").innerText = `ArmineX — Open inside Telegram`;
+    document.getElementById("sub").innerText = "Use the bot to open this page";
+    document.getElementById("refCode").innerText = `armineX_demo`;
+  }
+}
+
+// MOCK / UI login flows (replace with backend calls)
+function sendOtp(){
+  const phone = document.getElementById("phoneInput").value.trim();
+  if(!phone) return showSimple("Error","Enter phone number");
+  document.getElementById("loginStep1").classList.add("hide");
+  document.getElementById("loginStepOtp").classList.remove("hide");
+  showSimple("OTP Sent","Mock OTP 1234 — This is a demo. Connect SMS provider later.");
+}
+function verifyOtp(){
+  const otp = document.getElementById("otpInput").value.trim();
+  if(otp === "1234"){
+    // Demo user object — in real app call backend to create or fetch user
+    USER = { id: "u_"+Date.now(), first_name:"You", username:"", wallet:0, package:null };
+    closeLogin();
+    showSimple("Welcome","Login successful. Your demo account is ready.");
+    fetchDashboard();
+  } else showSimple("Invalid OTP","Enter 1234 (demo) or integrate real OTP API.");
+}
+function showEmail(){ hide(document.getElementById("loginStep1")); show(document.getElementById("loginStepEmail")); }
+function sendEmailLogin(){
+  const em = document.getElementById("emailInput").value.trim();
+  if(!em) return showSimple("Error","Enter email");
+  USER = { id: "u_"+Date.now(), first_name:em.split("@")[0], username:em, wallet:0, package:null };
+  closeLogin(); showSimple("Welcome","Email login (demo) successful."); fetchDashboard();
+}
+function backToPhone(){ hide(document.getElementById("loginStepEmail")); hide(document.getElementById("loginStepOtp")); show(document.getElementById("loginStep1")); }
+
+// Dashboard fetch - call API
+async function fetchDashboard(){
+  // If USER is provided by Telegram, prefer that
+  if(!USER && WEBAPP && WEBAPP.initDataUnsafe) {
+    USER = { id: WEBAPP.initDataUnsafe.user?.id || "guest", first_name:WEBAPP.initDataUnsafe.user?.first_name || "Member" };
+  }
+  // Example: call API to get dashboard; if not available, show demo values
+  try {
+    const uid = USER?.id || "guest";
+    const res = await fetch(`${API_BASE}/dashboard?uid=${encodeURIComponent(uid)}`);
+    if(!res.ok) throw new Error("no-data");
+    const data = await res.json();
+    document.getElementById("balance").innerText = `${data.balance ?? 0} USDT`;
+    document.getElementById("dailyProfit").innerText = `${data.dailyProfit ?? '—'}`;
+    document.getElementById("activePkg").innerText = `Active package: ${data.package ?? '—'}`;
+    document.getElementById("totalUsers").innerText = data.totalUsers ?? '—';
+    document.getElementById("pendingWithdrawals").innerText = data.pendingWithdrawals ?? '—';
+    document.getElementById("totalEarned").innerText = data.totalEarned ?? '—';
+    document.getElementById("refCode").innerText = data.referral || document.getElementById("refCode").innerText;
+  } catch(e){
+    // fallback demo
+    document.getElementById("balance").innerText = `0 USDT`;
+    document.getElementById("dailyProfit").innerText = `—`;
+    document.getElementById("activePkg").innerText = `—`;
+    document.getElementById("totalUsers").innerText = `—`;
+    document.getElementById("pendingWithdrawals").innerText = `—`;
+    document.getElementById("totalEarned").innerText = `—`;
+  }
+}
+
+// Activate package call
+async function activate(key, amount, dailyPercent){
+  if(!USER) return openLogin();
+  // call backend to create purchase order
+  try {
+    const res = await fetch(`${API_BASE}/activate`, {
+      method:"POST",
+      headers:{"Content-Type":"application/json"},
+      body: JSON.stringify({ uid:USER.id, package:key, amount })
+    });
+    const j = await res.json();
+    if(j.success) {
+      showSimple("Activated", `Package ${key} activated. Daily ${dailyPercent}% will be credited.`);
+      fetchDashboard();
+    } else showSimple("Error", j.message || "Activation failed");
+  } catch(e){
+    showSimple("Network", "Could not reach server. This demo does not perform payments.");
+  }
+}
+
+// Deposit, withdraw, daily task, team, history — hooks
+document.getElementById("depositBtn").addEventListener("click", ()=> {
+  if(!USER) return openLogin();
+  // Open deposit page at backend or instruct user
+  window.open(`${API_BASE}/deposit?uid=${USER.id}`,"_blank");
+});
+document.getElementById("withdrawBtn").addEventListener("click", ()=> {
+  if(!USER) return openLogin();
+  window.open(`${API_BASE}/withdraw?uid=${USER.id}`,"_blank");
+});
+document.getElementById("taskBtn").addEventListener("click", async ()=>{
+  if(!USER) return openLogin();
+  try{
+    const res = await fetch(`${API_BASE}/daily-task`, {method:"POST", headers:{"Content-Type":"application/json"}, body: JSON.stringify({ uid:USER.id })});
+    const j = await res.json();
+    showSimple("Task", j.message || "Task recorded (demo).");
+    fetchDashboard();
+  } catch(e){ showSimple("Error","Task failed (demo)."); }
+});
+document.getElementById("teamBtn").addEventListener("click", ()=> {
+  if(!USER) return openLogin();
+  window.open(`${API_BASE}/team?uid=${USER.id}`,"_blank");
+});
+document.getElementById("historyBtn").addEventListener("click", ()=> {
+  if(!USER) return openLogin();
+  window.open(`${API_BASE}/history?uid=${USER.id}`,"_blank");
+});
+document.getElementById("supportBtn").addEventListener("click", ()=> {
+  if(WEBAPP) WEBAPP.openTelegramLink("https://t.me/YourSupportUsername");
+  else window.open("https://t.me/YourSupportUsername","_blank");
+});
+
+// Referral copy
+document.getElementById("copyBtn").addEventListener("click", async ()=>{
+  const refText = document.getElementById("refCode").innerText || `armineX_${USER?.id || "guest"}`;
+  const ref = refText.split("_")[1] || (USER?.id || "guest");
+  const link = `https://t.me/${BOT_USERNAME}?start=${ref}`;
+  if(navigator.clipboard){ await navigator.clipboard.writeText(link); showSimple("Copied","Referral link copied to clipboard."); }
+  else prompt("Copy link", link);
+});
+
+// Login btn
+document.getElementById("loginBtn").addEventListener("click", ()=> openLogin());
+
+// Simple auto init
+window.addEventListener("load", onLoad);
+</script>
+</body>
+</html>
