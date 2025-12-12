@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Arminex Web3 Dashboard</title>
+
+<style>
+    body {
+        margin: 0;
+        font-family: Arial, sans-serif;
+        background: #0a0f1c;
+        color: white;
+    }
+
+    .header {
+        padding: 20px;
+        text-align: center;
+        background: #11182b;
+        font-size: 22px;
+        font-weight: bold;
+        color: #4db8ff;
+        border-bottom: 2px solid #4db8ff;
+    }
+
+    .container {
+        padding: 20px;
+    }
+
+    .card {
+        background: #11182b;
+        padding: 20px;
+        border-radius: 12px;
+        margin-bottom: 20px;
+        border: 1px solid #1a253d;
+    }
+
+    input, button, select {
+        width: 100%;
+        padding: 12px;
+        margin-top: 10px;
+        border-radius: 8px;
+        border: none;
+        outline: none;
+        font-size: 16px;
+    }
+
+    input {
+        background: #0f1628;
+        color: #4db8ff;
+        border: 1px solid #1a253d;
+    }
+
+    button {
+        background: #4db8ff;
+        color: #000;
+        font-weight: bold;
+        cursor: pointer;
+    }
+
+    .dashboard-section {
+        margin-top: 10px;
+        padding: 15px;
+        background: #0f1628;
+        border-radius: 10px;
+        border: 1px solid #1a253d;
+    }
+
+    .menu {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        width: 100%;
+        display: flex;
+        background: #11182b;
+        border-top: 1px solid #1a253d;
+    }
+
+    .menu button {
+        flex: 1;
+        padding: 15px;
+        background: none;
+        color: #4db8ff;
+        border-radius: 0;
+        border: none;
+        font-size: 16px;
+    }
+</style>
+
+</head>
+<body>
+
+<div class="header">
+    ARMINEX WEB3 EARNING BOT
+</div>
+
+<div class="container">
+
+    <!-- LOGIN / SIGNUP CARD -->
+    <div id="authCard" class="card">
+        <h2>Welcome to Arminex</h2>
+        <p>Create your passive income today.</p>
+
+        <input id="email" type="email" placeholder="Enter Email">
+        <input id="password" type="password" placeholder="Enter Password">
+
+        <button onclick="signup()">Sign Up</button>
+        <button onclick="login()">Login</button>
+    </div>
+
+    <!-- MAIN DASHBOARD -->
+    <div id="dashboard" style="display:none;">
+
+        <div class="card">
+            <h2>Your Dashboard</h2>
+            <p><b>User ID:</b> <span id="uid"></span></p>
+            <p><b>Total Balance:</b> $<span id="balance">0</span></p>
+        </div>
+
+        <div class="dashboard-section">
+            <h3>Packages</h3>
+            <select id="packageSelect">
+                <option value="10">Starter $10 — 0.1% daily</option>
+                <option value="30">Growth $30 — 0.4% daily</option>
+                <option value="60">Pro $60 — 0.8% daily</option>
+                <option value="100">Elite $100 — 1.5% daily</option>
+            </select>
+            <button onclick="buyPackage()">Activate Package</button>
+        </div>
+
+        <div class="dashboard-section">
+            <h3>Referral Link</h3>
+            <p id="reflink">Loading...</p>
+            <button onclick="copyRef()">Copy Link</button>
+        </div>
+
+        <div class="dashboard-section">
+            <h3>Daily Earn</h3>
+            <button onclick="claimProfit()">Claim Profit</button>
+        </div>
+
+        <div class="dashboard-section">
+            <h3>Withdraw</h3>
+            <input id="wallet" placeholder="USDT BEP20 Wallet">
+            <input id="amount" placeholder="Enter Amount">
+            <button onclick="withdraw()">Request Withdraw</button>
+        </div>
+
+    </div>
+
+    <!-- ADMIN PANEL -->
+    <div id="adminPanel" style="display:none;">
+        <div class="card">
+            <h2>Admin Panel</h2>
+            <button onclick="loadUsers()">Load All Users</button>
+        </div>
+
+        <div id="userList" class="dashboard-section"></div>
+    </div>
+
+</div>
+
+<!-- MENU -->
+<div class="menu">
+    <button onclick="showDashboard()">Dashboard</button>
+    <button onclick="showAdmin()">Admin</button>
+</div>
+
+<script>
+const API = "https://arminex-backend.onrender.com";
+
+function showDashboard() {
+    document.getElementById("dashboard").style.display = "block";
+    document.getElementById("adminPanel").style.display = "none";
+}
+
+function showAdmin() {
+    document.getElementById("dashboard").style.display = "none";
+    document.getElementById("adminPanel").style.display = "block";
+}
+
+async function signup() {
+    let email = document.getElementById("email").value;
+    let pass = document.getElementById("password").value;
+
+    let res = await fetch(`${API}/signup`, {
+        method: "POST",
+        headers: {"Content-Type":"application/json"},
+        body: JSON.stringify({email, password:pass})
+    });
+
+    alert(await res.text());
+}
+
+async function login() {
+    let email = document.getElementById("email").value;
+    let pass = document.getElementById("password").value;
+
+    let res = await fetch(`${API}/login`, {
+        method: "POST",
+        headers: {"Content-Type":"application/json"},
+        body: JSON.stringify({email, password:pass})
+    });
+
+    let data = await res.json();
+
+    if (data.success) {
+        document.getElementById("authCard").style.display = "none";
+        document.getElementById("dashboard").style.display = "block";
+
+        document.getElementById("uid").innerText = data.user.id;
+        document.getElementById("balance").innerText = data.user.balance;
+        document.getElementById("reflink").innerText = data.user.referral;
+    } else {
+        alert(data.message);
+    }
+}
+
+async function buyPackage() {
+    const pkg = document.getElementById("packageSelect").value;
+    alert("Package activated: $" + pkg);
+}
+
+function copyRef() {
+    navigator.clipboard.writeText(document.getElementById("reflink").innerText);
+    alert("Referral link copied!");
+}
+
+function claimProfit() {
+    alert("Daily profit added!");
+}
+
+async function withdraw() {
+    let w = document.getElementById("wallet").value;
+    let amt = document.getElementById("amount").value;
+
+    alert("Withdrawal requested: " + amt);
+}
+
+async function loadUsers() {
+    let res = await fetch(`${API}/users`);
+    let data = await res.json();
+
+    let html = "";
+    data.forEach(u => {
+        html += `<p>${u.email} — Balance: $${u.balance}</p>`;
+    });
+    document.getElementById("userList").innerHTML = html;
+}
+</script>
+
+</body>
+</html>
